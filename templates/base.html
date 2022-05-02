@@ -17,49 +17,35 @@
 </head>
 <body>
 <header>
-    <span id="button-menu" class="fa fa-bars"></span>
-    <nav class="navigation">
+    <i id="button-menu" class="fa fa-bars"></i>
+    <img src="/../static/img/logo.png" width="70" height="70" align="right">
+    <div class="navigation">
         <ul class="menu">
-            <!--titular-->
-            <li class="title-menu">jQueryScript</li>
-            <!--titular-->
+            <li class="title-menu">Какая-то очень хорошая школа!</li>
+            <li><a href="#"><span class="fa fa-home icon-menu"></span>Главная</a></li>
+            {% set q = 1 %}
+            {% for item in pages %}
+                {% if pages[item] %}
+                    <li class="item-submenu" menu="{{ q }}">
+                        <a href="#"><span class="fa fa-suitcase icon-menu"></span>{{item}}</a>
+                        <ul class="submenu">
+                            <li class="title-menu"><span class="fa fa-suitcase icon-menu"></span>{{item}}</li>
+                            <li class="go-back">Назад</li>
 
-            <li><a href="#"><span class="fa fa-home icon-menu"></span>Home</a>
-            <li>
-
-            <li class="item-submenu" menu="1">
-                <a href="#"><span class="fa fa-suitcase icon-menu"></span>Services</a>
-                <ul class="submenu">
-                    <li class="title-menu"><span class="fa fa-suitcase icon-menu"></span>Services</li>
-                    <li class="go-back">Back</li>
-
-                    <li><a href="#">Service 1</a></li>
-                    <li><a href="#">Service 2</a></li>
-                    <li><a href="#">Service 3</a></li>
-                </ul>
-            </li>
-
-            <li class="item-submenu" menu="2">
-                <a href="#"><span class="fa fa-shopping-bag icon-menu"></span>Products</a>
-                <ul class="submenu">
-                    <li class="title-menu"><span class="fa fa-shopping-bag icon-menu"></span>Products</li>
-                    <li class="go-back">Back</li>
-
-                    <li><a href="#">JavaScript</a>
-                    <li>
-                    <li><a href="#">HTML5</a>
-                    <li>
-                    <li><a href="#">CSS3</a>
-                    <li>
-                </ul>
-            </li>
-            <li><a href="#"><span class="fa fa-envelope icon-menu"></span>Contact</a>
-            <li>
-            <li><a href="#"><span class="fa fa-tag icon-menu"></span>Blog</a>
-            <li>
+                            {% for subitem in pages[item] %}
+                                <li><a href="#">{{ subitem }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    {% set q = q + 1 %}
+                {% else %}
+                    <li><a href="#"><span class="fa fa-envelope icon-menu"></span>{{item}}</a></li>
+                {% endif %}
+            {% endfor %}
         </ul>
-    </nav>
+    </div>
 </header>
+    <div class="spacebar-my"></div>
     {% block content %}{% endblock %}
 </body>
 </html>

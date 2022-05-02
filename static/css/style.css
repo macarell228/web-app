@@ -1,5 +1,5 @@
 :root {
-  --color-primary: #575D69;
+  --color-primary: rgba(0, 62, 115, 0.77);
   --second-color:  #fff;
 }
 
@@ -9,29 +9,30 @@
 	box-sizing: border-box;
 }
 
-body{
-	font-family: 'Open sans';
-	background: #E8E8E8;
-}
-
 header{
 	position: fixed;
 	width: 100%;
 	top: 0;
 	left: 0;
 
-	padding: 20px;
-	background: #34495E;
+	padding: 10px;
+	background: #60BFC1;
 }
 
 header #button-menu{
-	font-size: 30px;
+	font-size: 50px;
+	padding: 10px;
 	color: #fff;
 	cursor: pointer;
 }
 
+.spacebar-my{
+    width: 100%;
+    height: 90px;
+}
+
 .navigation{
-    --primary-color: #5F6F81;
+    --primary-color: #003e73;;
 	position: absolute;
 	top: 100%;
 	left: -32px;
@@ -57,7 +58,7 @@ header #button-menu{
 .navigation .menu li.title-menu{
 	padding: 20px;
 	background: var(--primary-color);
-	color: var();
+	color: var(--second-color);
 	text-align: center;
 	font-size: 22px;
 }

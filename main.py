@@ -7,10 +7,12 @@ from data import db_session
 app = Flask(__name__)
 app.config.from_object(Config)
 
+PAGES = {'Boba': [], 'Ann': ['Qurt', 'Swirt']}
+
 
 @app.route('/')
 def index():
-    return render_template("base.html")
+    return render_template("base.html", pages=PAGES)
 
 
 if __name__ == '__main__':
