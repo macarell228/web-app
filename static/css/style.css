@@ -1,0 +1,126 @@
+:root {
+  --color-primary: #575D69;
+  --second-color:  #fff;
+}
+
+*{
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body{
+	font-family: 'Open sans';
+	background: #E8E8E8;
+}
+
+header{
+	position: fixed;
+	width: 100%;
+	top: 0;
+	left: 0;
+
+	padding: 20px;
+	background: #34495E;
+}
+
+header #button-menu{
+	font-size: 30px;
+	color: #fff;
+	cursor: pointer;
+}
+
+.navigation{
+    --primary-color: #5F6F81;
+	position: absolute;
+	top: 100%;
+	left: -32px;
+	width: 0%;
+	height: 100vh;
+	background: rgba(0,0,0,.0);
+
+}
+
+.navigation ul{
+	width: 300px;
+	height: 100%;
+	background: var(--second-color);
+	list-style: none;
+
+	position: absolute;
+	top: 0;
+	left: -300px;
+
+	transition: left .3s;
+}
+
+.navigation .menu li.title-menu{
+	padding: 20px;
+	background: var(--primary-color);
+	color: var();
+	text-align: center;
+	font-size: 22px;
+}
+
+.navigation .menu a{
+	display: block;
+	padding: 20px;
+	border-bottom: 1px solid #C6D0DA;
+
+	font-size: 22px;
+	font-weight: 200;
+	text-decoration: none;
+	color: var(--color-primary);
+}
+
+.navigation .menu a:hover{
+	background: var(--color-primary);
+	color: #fff;
+}
+
+.navigation .menu li span.icon-menu{
+	margin-right: 12px;
+}
+
+.navigation .menu .item-submenu > a::after{
+	font: normal normal normal 14px/1 FontAwesome;
+  	font-size: inherit;
+  	text-rendering: auto;
+  	-webkit-font-smoothing: antialiased;
+  	-moz-osx-font-smoothing: grayscale;
+	content: '\f105';
+
+	float: right;
+	color: #C5C5C5;
+}
+
+/* Submenu ============*/
+
+.navigation .submenu li.title-menu{
+	background: var(--second-color);
+	color: var(--color-primary);
+}
+
+.navigation .submenu li.go-back{
+	padding: 10px 20px;
+	background: var(--primary-color);
+	color: var(--second-color);
+	font-size: 18px;
+	cursor: pointer;
+}
+
+.navigation .submenu li.go-back::before{
+	font: normal normal normal 14px/1 FontAwesome;
+  	font-size: inherit;
+  	text-rendering: auto;
+  	-webkit-font-smoothing: antialiased;
+  	-moz-osx-font-smoothing: grayscale;
+	content: '\f0d9';
+	margin-right: 10px;
+}
+
+@media screen and (max-width: 300px){
+	.navigation ul{
+		width: 100%;
+	}
+}
