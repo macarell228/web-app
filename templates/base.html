@@ -29,19 +29,19 @@
             {% for item in pages %}
                 {% if pages[item] %}
                     <li class="item-submenu" menu="{{ q }}">
-                        <a href="#"><span class="fa fa-suitcase icon-menu"></span>{{item}}</a>
+                        <a href="#"><span class="fa fa-suitcase icon-menu"></span>{{ item[0] }}</a>
                         <ul class="submenu">
                             <li class="title-menu"><span class="fa fa-suitcase icon-menu"></span>{{item}}</li>
                             <li class="go-back">Назад</li>
 
                             {% for subitem in pages[item] %}
-                                <li><a href="#">{{ subitem }}</a></li>
+                                <li><a href="{{ subitem[1] }}">{{ subitem[0] }}</a></li>
                             {% endfor %}
                         </ul>
                     </li>
                     {% set q = q + 1 %}
                 {% else %}
-                    <li><a href="#"><span class="fa fa-envelope icon-menu"></span>{{item}}</a></li>
+                    <li><a href="{{ item[1] }}"><span class="fa fa-envelope icon-menu"></span>{{ item[0] }}</a></li>
                 {% endif %}
             {% endfor %}
         </ul>
