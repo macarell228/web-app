@@ -3,7 +3,7 @@ $(document).ready(function(){
 	$('#button-menu').click(function(){
 		if($('#button-menu').attr('class') == 'fa fa-bars' ){
 
-			$('.navigation').css({'width':'100%', 'background':'rgba(0,0,0,.5)'});
+			$('.navigation').css({'width':'150%', 'background':'rgba(0,0,0,.5)'});
 			$('#button-menu').removeClass('fa fa-bars').addClass('fa fa-close');
 			$('.navigation .menu').css({'left':'0px'});
 
@@ -31,5 +31,10 @@ $(document).ready(function(){
 		$(this).parent().css({'left':'-320px'});
 
 	});
+
+	var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
 
 });

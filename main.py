@@ -12,7 +12,7 @@ PAGES = {'Boba': [], 'Ann': ['Qurt', 'Swirt']}
 
 @app.route('/')
 def index():
-    return render_template("base.html", pages=PAGES)
+    return render_template("index.html", pages=PAGES, name='Gubareva Ekaterina')
 
 
 if __name__ == '__main__':
