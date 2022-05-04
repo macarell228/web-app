@@ -13,7 +13,12 @@ PAGES = {('Boba', 'https://yandex.ru'): [],
 
 @app.route('/news/')
 def news_view(kwargs):
-    return render_template("view.html", pages=PAGES, **kwargs)
+    return render_template("view.html", title=kwargs['news_title'], pages=PAGES, **kwargs)
+
+
+@app.route('/')
+def index():
+    return render_template("index.html", title="Главная", pages=PAGES)
 
 
 if __name__ == '__main__':
