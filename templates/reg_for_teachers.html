@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Завершение регистрации</h1>
+<form action="/register" method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.work_exp.label }}<br>
+        {{ form.work_exp(class="form-control") }}<br>
+        {% for error in form.work_exp.errors %}
+            <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    </p>
+    <p>
+        {{ form.academics.label }}<br>
+        {{ form.academics(class="form-control") }}<br>
+        {% for error in form.academics.errors %}
+            <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    </p>
+    <p>
+        {{ form.dir_of_preparation.label }}<br>
+        {{ form.dir_of_preparation(class="form-control") }}<br>
+        {% for error in form.dir_of_preparation.errors %}
+            <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    </p>
+
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    {{message}}
+</form>
+{% endblock %}

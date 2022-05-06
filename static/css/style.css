@@ -40,6 +40,10 @@ h4{
   color: #003e73;
 }
 
+li {
+    list-style-type: none; /* Убираем маркеры */
+}
+
 .spacebar-my{
     width: 100%;
     height: 90px;

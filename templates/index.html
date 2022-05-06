@@ -1,45 +1,90 @@
 {% extends "base.html" %}
 
+{% block optional_links %}
+
+{% endblock %}
+
+
 {% block content %}
 <div class="bg"></div>
 <div class="bg bg2"></div>
 <div class="bg bg3"></div>
-<div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
-  <div class="carousel-indicators">
-    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1" aria-label="Slide 2"></button>
-    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3"></button>
-  </div>
-  <div class="carousel-inner">
-    <div class="carousel-item active">
-      <img src="/../static/img/carousel-1.jpg" class="d-block w-100" alt="...">
-      <div class="carousel-caption d-none d-md-block">
-        <h5>Метка первого слайда</h5>
-        <p>Некоторый репрезентативный заполнитель для первого слайда.</p>
-      </div>
+<div class="spacebar-my"></div>
+<div class="container-fluid my-carousel">
+    <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active"
+                    aria-current="true" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1"
+                    aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2"
+                    aria-label="Slide 3"></button>
+        </div>
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="/../static/img/carousel-1.jpg" class="d-block w-100" alt="...">
+                <div class="carousel-caption d-none d-md-block">
+                    <h5>Какая-то умная фраза про детей</h5>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="/../static/img/carousel-2.jpg" class="d-block w-100" alt="...">
+                <div class="carousel-caption d-none d-md-block">
+                    <h5>Еще одна фраза, но про подростков</h5>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="/../static/img/carousel-3.jpg" class="d-block w-100" alt="...">
+                <div class="carousel-caption d-none d-md-block">
+                    <h5>Третья фраза очень мотивирующая</h5>
+                </div>
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions"
+                data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Предыдущий</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions"
+                data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Следующий</span>
+        </button>
     </div>
-    <div class="carousel-item">
-      <img src="/../static/img/carousel-2.jpg" class="d-block w-100" alt="...">
-      <div class="carousel-caption d-none d-md-block">
-        <h5>Метка второго слайда</h5>
-        <p>Некоторый репрезентативный заполнитель для второго слайда.</p>
-      </div>
-    </div>
-    <div class="carousel-item">
-      <img src="/../static/img/carousel-3.jpg" class="d-block w-100" alt="...">
-      <div class="carousel-caption d-none d-md-block">
-        <h5>Метка третьего слайда</h5>
-        <p>Некоторый репрезентативный заполнитель для третьего слайда.</p>
-      </div>
-    </div>
-  </div>
-  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Предыдущий</span>
-  </button>
-  <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Следующий</span>
-  </button>
 </div>
+<div class="spacebar-my"></div>
+<div class="container-fluid index-description">
+    <div class="container-fluid text-description">
+        <blockquote class="blockquote">
+            <h3 align="right"><em>❝Non scholae, sed vitae discimus.❞</em></h3>
+            <p align="right"><em>Мы учимся не для школы, а для жизни</em></p>
+        </blockquote>
+        <h2>{{ content_text }}</h2>
+    </div>
+</div>
+<div class="spacebar-my"></div>
+<h1>Новости и события!</h1>
+{% for item in news%}
+<div class="container-fluid news-wrapper">
+    <div class="d-inline-block news-block" tabindex="0">
+        <div class="container-fluid news-content">
+            {{ item.title }}
+        </div>
+        <hr width="100%" size="7" color="#C17779"/>
+        <div class="container-fluid content-info">
+            <h4>{{ item.user.surname }} {{ item.user.name }}</h4>
+            <div class="info-wrapper">
+                <div class="status d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="Роль в школе"><a>{{
+                    item.user.status }}</a></div>
+                <div style="min-width: 10px; height: 20px;"></div>
+                <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" style="height: 20px;"
+                      title="Дата и время публикации">
+                    <a style="vertical-align: top; ">{{ item.date }}</a>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div style="min-width: 5%; height: 200px;"></div>
+</div>
+{% endfor %}
 {% endblock %}
