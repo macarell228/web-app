@@ -63,7 +63,7 @@
     </div>
 </div>
 <div class="spacebar-my"></div>
-<h1>Новости и события!</h1>
+<h1 align="center">Новости!</h1>
 {% for item in news%}
 <div class="container-fluid news-wrapper">
     <div class="d-inline-block news-block" tabindex="0">
@@ -72,14 +72,14 @@
         </div>
         <hr width="100%" size="7" color="#C17779"/>
         <div class="container-fluid content-info">
-            <h4>{{ item.user.surname }} {{ item.user.name }}</h4>
+            <h4>{{ surname }} {{ name }}</h4>
             <div class="info-wrapper">
                 <div class="status d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="Роль в школе"><a>{{
-                    item.user.status }}</a></div>
+                    status }}</a></div>
                 <div style="min-width: 10px; height: 20px;"></div>
                 <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" style="height: 20px;"
                       title="Дата и время публикации">
-                    <a style="vertical-align: top; ">{{ item.date }}</a>
+                    <a style="vertical-align: top; ">{{ date }}</a>
                 </span>
             </div>
         </div>

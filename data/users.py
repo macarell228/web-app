@@ -18,7 +18,6 @@ class User(SqlAlchemyBase):
                               index=True, unique=True, nullable=False)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     status_id = sqlalchemy.Column(sqlalchemy.Integer)
-    hashed_dnevnik_id = sqlalchemy.Column(sqlalchemy.String)
 
     news = orm.relation("News", back_populates='user')
 

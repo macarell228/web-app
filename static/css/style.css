@@ -182,6 +182,11 @@ li {
     flex-shrink: 0;
 }
 
+.register-form {
+    padding-left: 10%;
+    padding-right: 10%;
+}
+
 @media screen and (max-width: 300px){
 	.navigation ul{
 		width: 100%;

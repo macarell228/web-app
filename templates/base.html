@@ -26,12 +26,12 @@
     <div class="navigation">
         <ul class="menu">
             <li class="title-menu">Какая-то очень хорошая школа!</li>
-            <li><a href="#"><span class="fa fa-home icon-menu"></span>Главная</a></li>
+            <li><a href="/"><span class="fa fa-home icon-menu"></span>Главная</a></li>
             {% set q = 1 %}
             {% for item in pages %}
             {% if pages[item] %}
             <li class="item-submenu" menu="{{ q }}">
-                <a href="#"><span class="fa fa-suitcase icon-menu"></span>{{ item[0] }}</a>
+                <a href="#"><span class="fa fa-suitcase icon-menu"></span>{{ item }}</a>
                 <ul class="submenu">
                     <li class="title-menu"><span class="fa fa-suitcase icon-menu"></span>{{item}}</li>
                     <li class="go-back">Назад</li>
