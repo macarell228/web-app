@@ -2,39 +2,53 @@
 
 {% block content %}
 <div class="container-fluid register-form">
-<h1>Завершение регистрации</h1>
-<form action="/register/{{ account_id }}/{{ filename }}" method="post">
-    {{ form.hidden_tag() }}
-    <p>
-        {{ form.work_exp.label }}<br>
-        {{ form.work_exp(class="form-control") }}<br>
-        {% for error in form.work_exp.errors %}
-            <p class="alert alert-danger" role="alert">
-        {{ error }}
-    </p>
-    {% endfor %}
-    </p>
-    <p>
-        {{ form.academics.label }}<br>
-        {{ form.academics(class="form-control") }}<br>
-        {% for error in form.academics.errors %}
-            <p class="alert alert-danger" role="alert">
-        {{ error }}
-    </p>
-    {% endfor %}
-    </p>
-    <p>
-        {{ form.dir_of_preparation.label }}<br>
-        {{ form.dir_of_preparation(class="form-control") }}<br>
-        {% for error in form.dir_of_preparation.errors %}
-            <p class="alert alert-danger" role="alert">
-        {{ error }}
-    </p>
-    {% endfor %}
-    </p>
+    <h1>Завершение регистрации</h1>
+    <form action="/register/{{ account_id }}/{{ filename }}" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.work_exp.label }}<span id="rangeval">50<!-- Default value --></span><br>
+            {{ form.work_exp(class="form-range", onInput="$('#rangeval').html($(this).val())") }}<br>
+            {% for error in form.work_exp.errors %}
+        <p class="alert alert-danger" role="alert">
+            {{ error }}
+        </p>
+        {% endfor %}
+        </p>
+        <p>
+            {{ form.academics.label }}<br>
+            {{ form.academics(class="form-control") }}<br>
+            {% for error in form.academics.errors %}
+        <p class="alert alert-danger" role="alert">
+            {{ error }}
+        </p>
+        {% endfor %}
+        </p>
+        <p>
+            {{ form.dir_of_preparation.label }}<br>
+            {{ form.dir_of_preparation(class="form-control") }}<br>
+            {% for error in form.dir_of_preparation.errors %}
+        <p class="alert alert-danger" role="alert">
+            {{ error }}
+        </p>
+        {% endfor %}
+        <p>{{ form.subjects.label }}</p>
+        {{ form.subjects }}
+        {% for error in form.subjects.errors %}
+        <p class="alert alert-danger" role="alert">
+            {{ error }}
+        </p>
+        {% endfor %}
 
-    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
-    {{message}}
-</form>
+        {{ form.prof_devop_list.label }}
+        {% for nested in form.prof_devop_list %}
+            <hr width="100%" size="7" color="#C17779"/>
+            <span id="rangeval{{ loop.index|string }}">50<!-- Default value --></span>
+            {{ nested(onInput="$('#rangeval" + loop.index|string + "').html($(this).val())") }}
+        {% endfor %}
+
+
+        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+        {{message}}
+    </form>
 </div>
 {% endblock %}

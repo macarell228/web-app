@@ -187,6 +187,16 @@ li {
     padding-right: 10%;
 }
 
+.add
+{
+  width: 75px;
+  height: 75px;
+  line-height: 75px;
+  text-align: center;
+  border: 1px dashed grey;
+  margin: 10px 0;
+}
+
 @media screen and (max-width: 300px){
 	.navigation ul{
 		width: 100%;

@@ -30,9 +30,10 @@ async def upd():
 def update_lists():
     db_sess = db_session.create_session()
     app.config["ROLES"] = [item[0] for item in db_sess.execute("""SELECT status FROM statuses""").fetchall()]
-    app.config["CLASSES"] = [''.join(map(str, item)) for item in
+    app.config["CLASSES"] = [' '.join(map(str, item)) for item in
                              db_sess.execute("""SELECT class_number, class_letter FROM classes""").fetchall()]
-    app.config["SUBJECTS"] = db_sess.execute("""SELECT id, subject FROM subjects""").fetchall()
+    app.config["SUBJECTS"] = {item[1]: item[0] for item in
+                              db_sess.execute("""SELECT id, subject FROM subjects""").fetchall()}
 
     logging.warning(f"Обновлены переменные конфигурации.")
 
@@ -65,24 +66,45 @@ def news_view(news_id):
 
 @app.route('/register/<account_id>/<filename>', methods=['GET', 'POST'])
 def _back_func(account_id, filename):
-    form = init_optional_register_form(app.config["CLASSES"])
-    print(form.education_class.data)
+    form = init_optional_register_form(_classes=app.config["CLASSES"], _choices=app.config["SUBJECTS"].keys(),
+                                       state=(filename == app.config["REDIR"]["ученик"]))
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        if form.education_class.data:
-            print(form.education_class.data)
+        if filename == app.config["REDIR"]["ученик"]:
             tmp = form.education_class.data
             class_number, class_letter = int(tmp[:-1]), tmp[-1]
             class_id = db_sess.execute("""SELECT id FROM classes WHERE class_number=? AND class_letter='?'""",
                                        (class_number, class_letter)).fetchone()[0]
             db_sess.execute("""INSERT INTO students(account_id, class_id) VALUES(?, ?)""", (account_id, class_id))
-            return redirect('/login')
-        if form.work_exp.data and form.dir_of_preparation.data and form.academics.data and form.subjects.data:
-            print(form.work_exp.data, form.dir_of_preparation.data, form.academics.data, form.subjects.data, sep='\n')
+        else:
+            if not form.subjects.data:
+                return render_template(filename, title=app.config["TITLES"]['register'],
+                                       pages=app.config["PAGES"], form=form, account_id=account_id,
+                                       filename=filename, message="Выберите предмет, который вы преподаете.")
 
-            return redirect('/login')
-        return render_template(filename, title=app.config["TITLES"]['register'], pages=app.config["PAGES"],
-                               form=form, account_id=account_id, filename=filename, message='Не все поля заполнены.')
+            quality = db_sess.execute("""SELECT COUNT(*) FROM professional_development""").fetchone()[0]
+            q_elems = 0
+            for data in form.prof_devop_list.data:
+                date = data['date'].__str__()
+                description = data['description']
+                during = data['during'].__str__()
+                if date and description and during:
+                    db_sess.execute(f"""
+                        INSERT INTO 
+                            professional_development (account_id, date, description, during) 
+                        VALUES ({account_id}, "{date}", "{description}", {during})""")
+                    db_sess.commit()
+                    q_elems += 1
+            prof_devop_ids = ', '.join(list(map(str, range(quality, quality + q_elems))))
+            subject_ids = ', '.join([str(app.config["SUBJECTS"][item]) for item in form.subjects.data])
+            db_sess.execute(f"""
+                INSERT INTO 
+                    teachers (account_id, subjects_ids, academics, dir_of_preparation, prof_devop_ids, work_exp) 
+                VALUES ({account_id}, "{subject_ids}", "{form.academics.data}", "{form.dir_of_preparation.data}", 
+                "{prof_devop_ids}", {form.work_exp.data})""")
+
+        db_sess.commit()
+        return redirect('/login')
     return render_template(filename, title=app.config["TITLES"]['register'],
                            pages=app.config["PAGES"], form=form, account_id=account_id, filename=filename)
 
@@ -159,7 +181,6 @@ def index():
 
 if __name__ == '__main__':
     db_session.global_init("db/school_relations.db")
-
     update_lists()
 
     sched = BackgroundScheduler(daemon=True)

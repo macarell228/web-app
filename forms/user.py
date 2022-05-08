@@ -1,6 +1,7 @@
-from flask_wtf import FlaskForm
+from flask_wtf import FlaskForm, Form
 from wtforms import PasswordField, StringField, SubmitField, EmailField, \
-    RadioField, TextAreaField, IntegerRangeField, SelectMultipleField
+    RadioField, TextAreaField, IntegerRangeField, SelectMultipleField, \
+    FieldList, DateField, FormField
 from wtforms import widgets
 from wtforms.validators import DataRequired, Optional
 
@@ -8,6 +9,12 @@ from wtforms.validators import DataRequired, Optional
 class MultiCheckboxField(SelectMultipleField):
     widget = widgets.ListWidget(prefix_label=False)
     option_widget = widgets.CheckboxInput()
+
+
+class ProfessionalDevelopmentForm(Form):
+    date = DateField('Дата начала подготовки', validators=[Optional()])
+    description = StringField('Описание подготовки', validators=[Optional()])
+    during = IntegerRangeField('Продолжительность', validators=[Optional()])
 
 
 def init_register_form(_roles):
@@ -25,16 +32,18 @@ def init_register_form(_roles):
     return RegisterForm()
 
 
-def init_optional_register_form(_classes=None, _choices=None):
+def init_optional_register_form(_classes=None, _choices=None, state=None):
     class OptionalRegisterForm(FlaskForm):
-        if _choices:
+        if not state:
             work_exp = IntegerRangeField("Опыт работы", validators=[DataRequired()])
             academics = TextAreaField("Место обучения", validators=[DataRequired()])
             dir_of_preparation = TextAreaField("Направление обучения", validators=[DataRequired()])
-            subjects = MultiCheckboxField("Предметы, которые вы преподаете:", validators=[DataRequired()],
+            subjects = MultiCheckboxField("Предметы, которые вы преподаете:", validators=[Optional()],
                                           choices=_choices)
-        elif _classes:
-            education_class = RadioField("Ваш класс обучения:", choices=_classes)
+            prof_devop_list = FieldList(FormField(ProfessionalDevelopmentForm), min_entries=5, max_entries=5,
+                                        validators=[Optional()])
+        else:
+            education_class = RadioField("Ваш класс обучения:", choices=_classes, validators=[DataRequired()])
 
         submit = SubmitField('Завершить регистрацию')
 

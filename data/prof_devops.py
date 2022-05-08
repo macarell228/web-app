@@ -12,5 +12,4 @@ class ProfessionalDevelopment(SqlAlchemyBase):
     account_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("accounts.id"), nullable=False)
     date = sqlalchemy.Column(sqlalchemy.Date, nullable=False)
     description = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
-
-    user = orm.relation("ProfessionalDevelopment", back_populates='user')
+    during = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
