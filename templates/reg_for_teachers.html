@@ -6,8 +6,8 @@
     <form action="/register/{{ account_id }}/{{ filename }}" method="post">
         {{ form.hidden_tag() }}
         <p>
-            {{ form.work_exp.label }}<span id="rangeval">50<!-- Default value --></span><br>
-            {{ form.work_exp(class="form-range", onInput="$('#rangeval').html($(this).val())") }}<br>
+            {{ form.work_exp.label }}<div style="width:70%;height:10px;"></div><span id="rangeval">30</span><br>
+            {{ form.work_exp(class="form-range", min="0", max="60", step="0.1", onInput="$('#rangeval').html($(this).val())") }}<br>
             {% for error in form.work_exp.errors %}
         <p class="alert alert-danger" role="alert">
             {{ error }}
@@ -42,8 +42,7 @@
         {{ form.prof_devop_list.label }}
         {% for nested in form.prof_devop_list %}
             <hr width="100%" size="7" color="#C17779"/>
-            <span id="rangeval{{ loop.index|string }}">50<!-- Default value --></span>
-            {{ nested(onInput="$('#rangeval" + loop.index|string + "').html($(this).val())") }}
+            {{ nested }}
         {% endfor %}
 
 

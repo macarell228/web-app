@@ -21,8 +21,21 @@
 </head>
 <body>
 <header>
-    <i id="button-menu" class="fa fa-bars"></i>
-    <img src="/../static/img/logo.png" width="70" height="70" align="right">
+    <div class="news-wrapper">
+        <i id="button-menu" class="fa fa-bars"></i>
+        <div style="flex:1;"></div>
+        {% if current_user.is_authenticated %}
+        <a href="/logout">
+            <div align="right">
+                <h4>{{ current_user.surname }} {{ current_user.name }}</h4>
+                <div class="status" tabindex="0" data-bs-toggle="tooltip" title="Роль в школе"><a>{{
+                    make_readable_status(current_user.status_id) }}</a></div>
+            </div>
+        </a>
+        {% endif %}
+        <div style="min-width:30px; height:20px;"></div>
+        <img src="/../static/img/logo.png" width="70" height="70" align="right">
+    </div>
     <div class="navigation">
         <ul class="menu">
             <li class="title-menu">Какая-то очень хорошая школа!</li>
@@ -46,6 +59,11 @@
             <li><a href="{{ item[1] }}"><span class="fa fa-envelope icon-menu"></span>{{ item[0] }}</a></li>
             {% endif %}
             {% endfor %}
+            <li>
+            {% if current_user.is_authenticated %}
+            <a href="/news-add"><span class="fa  fa-pencil-square-o icon-menu"></span>Добавить новость</a>
+            {% endif %}
+            </li>
         </ul>
     </div>
 </header>

@@ -7,7 +7,9 @@ class Config(object):
     CLEAN_TIME_YEARS = 1
     TABLES_CLEAN = "news"
     PAGES = {
-        ('Страничка с интересной информацией', '/pages/page-1'): [],
+        ('Документы', '/docs'): [],
+        ("Педагоги", "/teachers"): [],
+        ("Воспитание", "/raise"): [],
         'Аккаунт': [('Войти', '/login'), ('Зарегистрироваться', '/register')]
     }
     REDIR = {
@@ -17,5 +19,7 @@ class Config(object):
     TITLES = {
         "news": "Новость",
         "register": "Регистрация",
-        "page": "Страница с информацией"
+        "docs": "Страница с информацией",
+        "teachers": "Педагоги",
+        "raise": "Воспитание"
     }

@@ -1,10 +1,23 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="bg"></div>
+    <div class="bg bg2"></div>
+    <div class="bg bg3"></div>
 <div class="container-fluid register-form">
-    <h1>
+    <h1 align="center">
         {{ content_title }}
     </h1>
     <h3>{{ content_text }}</h3>
+    <div class="spacebar-my"></div>
+    {% for item in media %}
+    <a href="{{ content_dir }}/{{ item[0] }}" download>
+        {% if item|length > 1 %}
+            {{ item[1] }}
+        {% else %}
+            {{ item[0] }}
+        {% endif %}
+    </a><br>
+    {% endfor %}
 </div>
 {% endblock %}

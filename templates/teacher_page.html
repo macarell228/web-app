@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg"></div>
+    <div class="bg bg2"></div>
+    <div class="bg bg3"></div>
+<div class="content-news">
+    <hr width="100%" size="7" color="#C17779"/>
+    <h4>{{ teacher.account.surname }} {{ teacher.account.name }} {% if teacher.account.patronymic %}{{ teacher.account.patronymic }}{% endif %}</h4>
+    <hr width="100%" size="7" color="#C17779"/>
+    <h5>
+        Опыт работы (в годах): {{ teacher.work_exp }}<br><br>
+        Место обучения: {{ teacher.academics }}<br><br>
+        Направление обучения: {{ teacher.dir_of_preparation }}<br><br>
+    </h5>
+    <h5>Преподаваемые предметы:</h5>
+    <ul class="list-group list-group-flush">
+    {% for item in subjects %}
+        <li class="list-group-item">
+            <h6>{{ item }}</h6>
+        </li>
+    {% endfor %}
+    </ul>
+    {% if prepare %}<h5>Данные о профессиональной подготовке:</h5>{% endif %}
+    <ul class="list-group list-group-flush">
+    {% for item in prepare %}
+        <li class="list-group-item">
+            <h6>
+                Описание подготовки: {{ item.description }}<br>
+                Дата прохождения подготовки: {{ item.date }}<br>
+                Продолжительность (в часах): {{ item.during }}<br>
+            </h6>
+        </li>
+    {% endfor %}
+    </ul>
+</div>
+{% endblock %}

@@ -9,7 +9,9 @@ class ProfessionalDevelopment(SqlAlchemyBase):
 
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True, unique=True)
-    account_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("accounts.id"), nullable=False)
+    account_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("teachers.account_id"), nullable=False)
     date = sqlalchemy.Column(sqlalchemy.Date, nullable=False)
     description = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
     during = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+
+    teacher = orm.relation('Teacher')

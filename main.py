@@ -2,18 +2,25 @@ import logging
 import datetime
 import json
 
+from pymorphy2 import MorphAnalyzer
+
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from flask import Flask
-from flask import render_template, jsonify, redirect
+from flask import render_template, redirect, request, abort
+
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
 from config import Config
 
 from data import db_session
 from data.users import User
 from data.news import News
+from data.teachers import Teacher
+from data.prof_devops import ProfessionalDevelopment
 
-from forms.user import init_register_form, init_optional_register_form
+from forms.user import init_register_form, init_optional_register_form, LoginForm
+from forms.news import init_news_form
 
 
 async def upd():
@@ -30,6 +37,8 @@ async def upd():
 def update_lists():
     db_sess = db_session.create_session()
     app.config["ROLES"] = [item[0] for item in db_sess.execute("""SELECT status FROM statuses""").fetchall()]
+    app.config["ROLES_REVERSE"] = {item[0]: item[1] for item in
+                                   db_sess.execute("""SELECT id, status FROM statuses""").fetchall()}
     app.config["CLASSES"] = [' '.join(map(str, item)) for item in
                              db_sess.execute("""SELECT class_number, class_letter FROM classes""").fetchall()]
     app.config["SUBJECTS"] = {item[1]: item[0] for item in
@@ -40,28 +49,66 @@ def update_lists():
 
 app: Flask = Flask(__name__)
 app.config.from_object(Config)
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+morph = MorphAnalyzer(lang='ru')
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    db_sess = db_session.create_session()
+    return db_sess.query(User).get(user_id)
+
+
+# Декоратор делает так, чтобы функции внутри можно было использовать с движком Jinja2, который использует  Flask
+@app.context_processor
+def utility_processor():
+    def make_readable_status(status_id):
+        return app.config["ROLES_REVERSE"][status_id]
+
+    return dict(make_readable_status=make_readable_status)
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect("/")
 
 
 @app.route('/news/<news_id>')
 def news_view(news_id):
-    # мусор!!!
+    db_sess = db_session.create_session()
+    news = db_sess.query(News).filter(News.id == news_id).first()
+    return render_template("view.html", title=app.config["TITLES"]['news'], pages=app.config["PAGES"], news=news)
 
-    a = News(title="Кто-то съел весь хлеб в столовой!!!!", seem_for="1, 2, 3, 4", content="""Однако для отображения пользователю диалога о подтверждении какого-либо действия или информационного сообщения о каком-нибудь системном событии (например, об ошибке) в PyQT есть более привычный и подходящий инструмент. Это класс QMessageBox, у которого с QInputDialog общий родитель — QDialog. Поэтому импортируем его из PyQt5.QtWidgets, вызовем метод question(), в который передаются следующие параметры:
 
-    Родитель — self
-    Заголовок — обычно передается пустое поле, если мы хотим задать пользователю вопрос
-    Текст вопроса
-    Варианты ответов — QMessageBox.Yes, QMessageBox.No
-    Возможности QMessageBox достаточно широки, рекомендуем ознакомиться с ними в документации.
+@app.route('/teachers/<teacher_id>')
+def teacher(teacher_id):
+    db_sess = db_session.create_session()
+    teacher_object = db_sess.query(Teacher).filter(Teacher.account_id == teacher_id).first()
+    subjects = list(map(lambda x: x[0],
+                        db_sess.execute(
+                            f"""SELECT subject FROM subjects WHERE id IN ({teacher_object.subjects_ids})""").fetchall()))
+    prepare = db_sess.query(ProfessionalDevelopment).filter(ProfessionalDevelopment.account_id == teacher_id).all()
+    return render_template("teacher_page.html", title=app.config["TITLES"]['teachers'], pages=app.config["PAGES"],
+                           teacher=teacher_object, subjects=subjects, prepare=prepare)
 
-    После того как пользователь нажмет на одну из кнопок, результат будет занесен в переменную valid. А затем будет выполнена проверка и удаление.
 
-    Важно обратить внимание на то, что текст запроса формируется с использованием и конкатенации строк, и оператора "?". В данной задаче мы также столкнулись с методом commit() у соединения с базой данных. Не забывайте фиксировать изменения после изменения данных или их удаления.""",
-             author_id=1)
-
-    # мусор!!!!
-    return render_template("view.html", title=app.config["TITLES"]['news'], pages=app.config["PAGES"], news=a,
-                           surname="Пупкин", name="Вася", status="ученик", date="21.09.2022 10:30")
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.email == form.email.data).first()
+        if user and user.check_password(form.password.data):
+            login_user(user, remember=form.remember_me.data)
+            return redirect("/")
+        return render_template('login.html',
+                               message="Неправильный логин или пароль",
+                               form=form)
+    return render_template('login.html', title='Авторизация', form=form)
 
 
 @app.route('/register/<account_id>/<filename>', methods=['GET', 'POST'])
@@ -141,13 +188,111 @@ def reqister():
                            form=form)
 
 
-@app.route('/pages/page-1')
-def page1():
+@app.route('/news_change/<int:news_id>', methods=['GET', 'POST'])
+@login_required
+def edit_news(news_id):
+    form = init_news_form(
+        _choices=[morph.parse(item)[0].inflect({'plur', 'datv'}).word for item in app.config["ROLES"]])
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        news = db_sess.query(News).filter(News.id == news_id,
+                                          News.user == current_user
+                                          ).first()
+        if news:
+            form.title.data = news.title
+            form.content.data = news.content
+            form.seem_for.data = news.seem_for
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        news = db_sess.query(News).filter(News.id == news_id,
+                                          News.user == current_user
+                                          ).first()
+        if news:
+            news.title = form.title.data
+            news.content = form.content.data
+            news.seem_for = ', '.join(
+                map(lambda x: str(db_sess.execute(f"""SELECT id FROM statuses WHERE status='{x}'""").fetchone()[0]),
+                    [morph.parse(item)[0].normal_form for item in form.seem_for.data]))
+            db_sess.commit()
+            return redirect('/')
+        else:
+            abort(404)
+    return render_template('news.html',
+                           title='Редактирование новости',
+                           form=form
+                           )
+
+
+@app.route('/news_delete/<int:news_id>', methods=['GET', 'POST'])
+@login_required
+def news_delete(news_id):
+    db_sess = db_session.create_session()
+    news = db_sess.query(News).filter(News.id == news_id,
+                                      News.user == current_user
+                                      ).first()
+    if news:
+        db_sess.delete(news)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/')
+
+
+@app.route('/news-add', methods=['GET', 'POST'])
+@login_required
+def add_news():
+    form = init_news_form(
+        _choices=[morph.parse(item)[0].inflect({'plur', 'datv'}).word for item in app.config["ROLES"]])
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        news = News()
+        news.title = form.title.data
+        news.content = form.content.data
+        news.seem_for = ', '.join(
+            map(lambda x: str(db_sess.execute(f"""SELECT id FROM statuses WHERE status='{x}'""").fetchone()[0]),
+                [morph.parse(item)[0].normal_form for item in form.seem_for.data]))
+        current_user.news.append(news)
+        db_sess.merge(current_user)
+        db_sess.commit()
+        return redirect('/')
+    return render_template('news.html', title='Добавление новости',
+                           form=form)
+
+
+@app.route('/teachers')
+def teachers():
     try:
         with open('static/json/content.json', mode='r', encoding='utf-8') as f:
             data = json.load(f)
-        return render_template("some_page.html", title=app.config["TITLES"]["page"], pages=app.config["PAGES"],
-                               **(data["/pages/page-1"]))
+        db_sess = db_session.create_session()
+        teachers_user = db_sess.query(User).filter(
+            User.status_id == db_sess.execute("""SELECT id FROM statuses WHERE status='учитель'""").fetchone()[0])
+        return render_template("teachers.html", title=app.config["TITLES"]["teachers"], pages=app.config["PAGES"],
+                               **(data["/teachers"]), teachers=teachers_user)
+    except Exception as error:
+        logging.fatal(error)
+
+
+@app.route('/docs')
+def docs():
+    try:
+        with open('static/json/content.json', mode='r', encoding='utf-8') as f:
+            data = json.load(f)
+        return render_template("some_page.html", title=app.config["TITLES"]["docs"], pages=app.config["PAGES"],
+                               **(data["/docs"]))
+    except Exception as error:
+        logging.fatal(error)
+
+
+@app.route('/raise')
+def raising():
+    try:
+        with open('static/json/content.json', mode='r', encoding='utf-8') as f:
+            data = json.load(f)
+        return render_template("some_page.html", title=app.config["TITLES"]["raise"], pages=app.config["PAGES"],
+                               **(data["/raise"]))
     except Exception as error:
         logging.fatal(error)
 
@@ -158,23 +303,10 @@ def index():
         with open('static/json/content.json', mode='r', encoding='utf-8') as f:
             data = json.load(f)
 
-        # мусор!!
-        a = News(title="Кто-то съел весь хлеб в столовой!!!!", seem_for="1, 2, 3, 4", content="""Однако для отображения пользователю диалога о подтверждении какого-либо действия или информационного сообщения о каком-нибудь системном событии (например, об ошибке) в PyQT есть более привычный и подходящий инструмент. Это класс QMessageBox, у которого с QInputDialog общий родитель — QDialog. Поэтому импортируем его из PyQt5.QtWidgets, вызовем метод question(), в который передаются следующие параметры:
+        db_sess = db_session.create_session()
+        news = db_sess.query(News).order_by(News.date).all()[::-1]  # питонист
 
-Родитель — self
-Заголовок — обычно передается пустое поле, если мы хотим задать пользователю вопрос
-Текст вопроса
-Варианты ответов — QMessageBox.Yes, QMessageBox.No
-Возможности QMessageBox достаточно широки, рекомендуем ознакомиться с ними в документации.
-
-После того как пользователь нажмет на одну из кнопок, результат будет занесен в переменную valid. А затем будет выполнена проверка и удаление.
-
-Важно обратить внимание на то, что текст запроса формируется с использованием и конкатенации строк, и оператора "?". В данной задаче мы также столкнулись с методом commit() у соединения с базой данных. Не забывайте фиксировать изменения после изменения данных или их удаления.""",
-                 author_id=1)
-        # мусор!!
-
-        return render_template("index.html", title="Главная", pages=app.config["PAGES"], **(data["/"]),
-                               news=[a], surname="Пупкин", name="Вася", status="ученик", date="21.09.2022 10:30")
+        return render_template("index.html", title="Главная", pages=app.config["PAGES"], **(data["/"]), news=news)
     except Exception as error:
         logging.fatal(error)
 

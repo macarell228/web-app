@@ -12,7 +12,7 @@
   padding-left: 10vmin;
   position:fixed;
   text-align:center;
-  top:60%;
+  top:63%;
   transform:translate(-50%, -50%);
   overflow: auto;
   z-index:1;
@@ -48,7 +48,6 @@ hr {
 .news-wrapper {
   display: flex;
   flex-flow: row wrap;
-  height: 20px;
 }
 
 @keyframes slide {
