@@ -1,10 +1,12 @@
 import sqlalchemy
 from sqlalchemy import orm
 
+from sqlalchemy_serializer import SerializerMixin
+
 from .db_session import SqlAlchemyBase
 
 
-class ProfessionalDevelopment(SqlAlchemyBase):
+class ProfessionalDevelopment(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'professional_development'
 
     id = sqlalchemy.Column(sqlalchemy.Integer,

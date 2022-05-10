@@ -7,9 +7,11 @@ from pymorphy2 import MorphAnalyzer
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from flask import Flask
-from flask import render_template, redirect, request, abort
+from flask import render_template, redirect, request, abort, make_response, jsonify
 
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+
+from flask_restful import Api
 
 from config import Config
 
@@ -18,6 +20,7 @@ from data.users import User
 from data.news import News
 from data.teachers import Teacher
 from data.prof_devops import ProfessionalDevelopment
+from api import news_resources
 
 from forms.user import init_register_form, init_optional_register_form, LoginForm
 from forms.news import init_news_form
@@ -49,8 +52,11 @@ def update_lists():
 
 app: Flask = Flask(__name__)
 app.config.from_object(Config)
+
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+api = Api(app)
 
 morph = MorphAnalyzer(lang='ru')
 
@@ -59,6 +65,11 @@ morph = MorphAnalyzer(lang='ru')
 def load_user(user_id):
     db_sess = db_session.create_session()
     return db_sess.query(User).get(user_id)
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
 
 
 # Декоратор делает так, чтобы функции внутри можно было использовать с движком Jinja2, который использует  Flask
@@ -77,14 +88,14 @@ def logout():
     return redirect("/")
 
 
-@app.route('/news/<news_id>')
+@app.route('/news/<int:news_id>')
 def news_view(news_id):
     db_sess = db_session.create_session()
     news = db_sess.query(News).filter(News.id == news_id).first()
     return render_template("view.html", title=app.config["TITLES"]['news'], pages=app.config["PAGES"], news=news)
 
 
-@app.route('/teachers/<teacher_id>')
+@app.route('/teachers/<int:teacher_id>')
 def teacher(teacher_id):
     db_sess = db_session.create_session()
     teacher_object = db_sess.query(Teacher).filter(Teacher.account_id == teacher_id).first()
@@ -120,9 +131,10 @@ def _back_func(account_id, filename):
         if filename == app.config["REDIR"]["ученик"]:
             tmp = form.education_class.data
             class_number, class_letter = int(tmp[:-1]), tmp[-1]
-            class_id = db_sess.execute("""SELECT id FROM classes WHERE class_number=? AND class_letter='?'""",
-                                       (class_number, class_letter)).fetchone()[0]
-            db_sess.execute("""INSERT INTO students(account_id, class_id) VALUES(?, ?)""", (account_id, class_id))
+            class_id = db_sess.execute(f"""
+                SELECT id FROM classes 
+                WHERE class_number={class_number} AND class_letter='{class_letter}'""").fetchone()[0]
+            db_sess.execute(f"""INSERT INTO students(account_id, class_id) VALUES({account_id}, {class_id})""")
         else:
             if not form.subjects.data:
                 return render_template(filename, title=app.config["TITLES"]['register'],
@@ -158,7 +170,7 @@ def _back_func(account_id, filename):
 
 @app.route('/register', methods=['GET', 'POST'])
 def reqister():
-    form = init_register_form(app.config["ROLES"])
+    form = init_register_form([item for item in app.config["ROLES"] if item != 'гость'])
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
             return render_template('register.html', title='Регистрация',
@@ -251,7 +263,8 @@ def add_news():
         news.title = form.title.data
         news.content = form.content.data
         news.seem_for = ', '.join(
-            map(lambda x: str(db_sess.execute(f"""SELECT id FROM statuses WHERE status='{x}'""").fetchone()[0]),
+            map(lambda x: str(
+                db_sess.execute(f"""SELECT id FROM statuses WHERE status LIKE '%{x.split()[0]}%'""").fetchone()[0]),
                 [morph.parse(item)[0].normal_form for item in form.seem_for.data]))
         current_user.news.append(news)
         db_sess.merge(current_user)
@@ -304,7 +317,14 @@ def index():
             data = json.load(f)
 
         db_sess = db_session.create_session()
-        news = db_sess.query(News).order_by(News.date).all()[::-1]  # питонист
+        if current_user.is_authenticated:
+            news = db_sess.query(News).filter(
+                News.seem_for.like(f'%{ current_user.status_id }%')
+            ).order_by(News.date).all()[::-1]  # питонист
+        else:
+            news = db_sess.query(News).filter(
+                News.seem_for.like('%5%')
+            ).order_by(News.date).all()[::-1]
 
         return render_template("index.html", title="Главная", pages=app.config["PAGES"], **(data["/"]), news=news)
     except Exception as error:
@@ -314,6 +334,9 @@ def index():
 if __name__ == '__main__':
     db_session.global_init("db/school_relations.db")
     update_lists()
+
+    api.add_resource(news_resources.NewsListResource, '/api/news')
+    api.add_resource(news_resources.NewsResource, '/api/news/<int:news_id>')
 
     sched = BackgroundScheduler(daemon=True)
     # каждые 2 года чистим БД от старых новостей
